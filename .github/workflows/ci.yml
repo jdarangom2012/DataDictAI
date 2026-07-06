@@ -49,6 +49,8 @@ jobs:
       DATABASE_URL: postgres://datadictai:datadictai@localhost:5432/datadictai_test
       REDIS_URL: redis://localhost:6379/0
       CELERY_TASK_ALWAYS_EAGER: "True"
+      # El target de los tests de introspeccion es el propio Postgres de CI (localhost).
+      ALLOW_PRIVATE_DB_HOSTS: "True"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

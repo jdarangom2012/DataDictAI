@@ -21,6 +21,11 @@ ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
 # Documento 02 §5 / Documento 04 Parte A.1.
 FERNET_KEY = env("FERNET_KEY", default=None)
 
+# SSRF guard (Documento 04 Parte A.2): por defecto bloqueamos conexiones de clientes
+# hacia rangos de IP privados/loopback/link-local. Solo True en dev/CI, donde nuestro
+# propio stack (docker-compose) vive en una red privada. Nunca True en produccion.
+ALLOW_PRIVATE_DB_HOSTS = env.bool("ALLOW_PRIVATE_DB_HOSTS", default=False)
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

@@ -26,6 +26,10 @@ FERNET_KEY = env("FERNET_KEY", default=None)
 # propio stack (docker-compose) vive en una red privada. Nunca True en produccion.
 ALLOW_PRIVATE_DB_HOSTS = env.bool("ALLOW_PRIVATE_DB_HOSTS", default=False)
 
+# Motor de IA (ai_engine) — Documento 02 §6: solo recibe estructura, nunca filas de datos.
+AI_API_KEY = env("AI_API_KEY", default=None)
+AI_MODEL = env("AI_MODEL", default="gpt-4o-mini")
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

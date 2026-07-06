@@ -9,9 +9,11 @@ from __future__ import annotations
 
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from connections.models import DatabaseConnection
+from connections.permissions import HasVerifiedEmail
 from connections.serializers import DatabaseConnectionCreateSerializer, DatabaseConnectionSerializer
 from introspection.tasks import introspect_database
 
@@ -23,6 +25,8 @@ class DatabaseConnectionViewSet(
     mixins.DestroyModelMixin,
     viewsets.GenericViewSet,
 ):
+    permission_classes = [IsAuthenticated, HasVerifiedEmail]
+
     def get_queryset(self):
         return DatabaseConnection.objects.filter(user=self.request.user).order_by("-created_at")
 

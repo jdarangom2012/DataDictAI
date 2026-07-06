@@ -1,0 +1,37 @@
+<div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+    <p class="text-sm text-ink/70 mb-4">Solo lectura, siempre. Nunca escribimos en tu base de datos.</p>
+
+    <div class="mb-6 rounded-md border border-warning/30 bg-bg px-4 py-3">
+        <p class="text-sm font-medium text-warning mb-2">
+            Recomendado: crea un usuario de solo lectura antes de conectar
+        </p>
+        <pre class="font-mono text-xs text-ink/80 overflow-x-auto whitespace-pre-wrap">CREATE USER datadictai_readonly WITH PASSWORD '...';
+GRANT CONNECT ON DATABASE tu_base TO datadictai_readonly;
+GRANT USAGE ON SCHEMA public TO datadictai_readonly;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO datadictai_readonly;</pre>
+    </div>
+
+    {% if form_error %}
+    <div class="mb-4 rounded-md border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-300">
+        {{ form_error }}
+    </div>
+    {% endif %}
+
+    <form hx-post="{% url 'dashboard:create_connection' %}" hx-target="#dashboard-content" hx-swap="innerHTML" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block text-sm mb-1" for="id_name">Nombre</label>
+            <input type="text" name="name" id="id_name" required placeholder="Produccion"
+                   class="w-full rounded-md bg-bg border border-bg-secondary px-3 py-2 text-sm focus:outline-none focus:border-accent">
+        </div>
+        <div>
+            <label class="block text-sm mb-1" for="id_connection_string">Connection string</label>
+            <input type="text" name="connection_string" id="id_connection_string" required
+                   placeholder="postgresql://usuario:password@host:5432/basededatos"
+                   class="w-full rounded-md bg-bg border border-bg-secondary px-3 py-2 text-sm font-mono focus:outline-none focus:border-accent">
+        </div>
+        <button type="submit" class="rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-dark transition">
+            Conectar
+        </button>
+    </form>
+</div>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DataDict AI{% endblock %}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        bg: "#08141C",
+                        "bg-secondary": "#0F2530",
+                        accent: "#1FD8E8",
+                        "accent-dark": "#0EA5B7",
+                        ink: "#E8F6F8",
+                        success: "#2ED8A7",
+                        warning: "#F5A623",
+                    },
+                    fontFamily: {
+                        heading: ["Space Grotesk", "sans-serif"],
+                        sans: ["Inter", "sans-serif"],
+                        mono: ["JetBrains Mono", "monospace"],
+                    },
+                },
+            },
+        };
+    </script>
+
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.14.1/dist/cdn.min.js"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-bg text-ink font-sans min-h-screen" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <header class="border-b border-bg-secondary">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="{% url 'dashboard:home' %}" class="font-heading text-lg font-semibold text-ink">
+                DataDict <span class="text-accent">AI</span>
+            </a>
+            {% if user.is_authenticated %}
+            <form method="post" action="{% url 'account_logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="text-sm text-ink/70 hover:text-accent transition">
+                    Cerrar sesion ({{ user.email|default:user.username }})
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 py-10">
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="rounded-md border border-accent/30 bg-bg-secondary px-4 py-3 text-sm">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

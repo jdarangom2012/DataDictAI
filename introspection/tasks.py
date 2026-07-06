@@ -45,6 +45,15 @@ def introspect_database(connection_id: int) -> int:
     connection.last_synced_at = timezone.now()
     connection.save(update_fields=["status", "last_synced_at"])
 
+    # Documento 02 SS4.5: al re-sincronizar, comparar contra el snapshot anterior.
+    # Es un paso complementario -- nunca debe hacer fallar una introspeccion exitosa.
+    from snapshots.tasks import diff_latest_snapshots
+
+    try:
+        diff_latest_snapshots(connection.id)
+    except Exception:
+        logger.warning("Schema diff failed for connection_id=%s", connection_id)
+
     return snapshot.id
 
 

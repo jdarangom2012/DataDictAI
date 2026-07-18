@@ -136,3 +136,37 @@ def test_cannot_sync_other_users_connection(client, django_user_model):
 
     assert response.status_code == 404
     mock_delay.assert_not_called()
+
+
+@pytest.mark.django_db
+def test_schema_view_renders_for_own_connection(client, user):
+    connection = DatabaseConnection(user=user, name="Mine")
+    connection.set_credentials(VALID_DSN)
+    connection.save()
+
+    response = client.get(f"/connections/{connection.id}/schema/")
+
+    assert response.status_code == 200
+    assert b"schemaView(" in response.content
+    assert "Mine" in response.content.decode()
+
+
+@pytest.mark.django_db
+def test_schema_view_404_for_other_users_connection(client, django_user_model):
+    other_user = django_user_model.objects.create_user(
+        username="other", password="x", email="other@example.com"
+    )
+    theirs = DatabaseConnection(user=other_user, name="Theirs")
+    theirs.set_credentials(VALID_DSN)
+    theirs.save()
+
+    response = client.get(f"/connections/{theirs.id}/schema/")
+
+    assert response.status_code == 404
+
+
+@pytest.mark.django_db
+def test_schema_view_requires_login():
+    connection_owner_response = Client().get("/connections/1/schema/")
+    assert connection_owner_response.status_code == 302
+    assert "/accounts/login/" in connection_owner_response.url

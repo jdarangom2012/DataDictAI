@@ -30,7 +30,13 @@
                 <td class="px-4 py-3 text-ink/70">
                     {% if connection.last_synced_at %}{{ connection.last_synced_at|date:"d/m/Y H:i" }}{% else %}Nunca{% endif %}
                 </td>
-                <td class="px-4 py-3 text-right">
+                <td class="px-4 py-3 text-right space-x-3">
+                    {% if connection.status == 'connected' %}
+                    <a href="{% url 'dashboard:schema_view' connection.id %}"
+                       class="text-xs text-accent hover:text-accent-dark transition">
+                        Ver esquema
+                    </a>
+                    {% endif %}
                     <button
                         hx-post="{% url 'dashboard:sync_connection' connection.id %}"
                         hx-target="#dashboard-content"

@@ -81,3 +81,9 @@ def sync_connection(request, pk):
         "dashboard/_dashboard_content.html",
         {"connections": _user_connections(request.user)},
     )
+
+
+@login_required
+def schema_view(request, pk):
+    connection = get_object_or_404(DatabaseConnection, pk=pk, user=request.user)
+    return render(request, "dashboard/schema.html", {"connection": connection})

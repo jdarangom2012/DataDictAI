@@ -8,4 +8,5 @@ urlpatterns = [
     path("", views.home, name="home"),
     path("connections/create/", views.create_connection, name="create_connection"),
     path("connections/<int:pk>/sync/", views.sync_connection, name="sync_connection"),
+    path("connections/<int:pk>/schema/", views.schema_view, name="schema_view"),
 ]

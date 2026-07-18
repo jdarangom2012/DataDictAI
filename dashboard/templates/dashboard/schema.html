@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% block title %}Esquema - {{ connection.name }} - DataDict AI{% endblock %}
+{% block main_class %}max-w-7xl mx-auto px-6 py-10{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard:home' %}" class="text-sm text-accent hover:text-accent-dark">&larr; Conexiones</a>
+    <h1 class="font-heading text-2xl font-semibold mt-1">{{ connection.name }}</h1>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-6" x-data="schemaView({{ connection.id }})" x-init="init()">
+    <aside class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-4">
+        <input type="text" x-model="search" placeholder="Buscar tabla..."
+               class="w-full rounded-md bg-bg border border-bg-secondary px-3 py-2 text-sm mb-3 focus:outline-none focus:border-accent">
+        <p x-show="loading" class="text-sm text-ink/50">Cargando esquema...</p>
+        <p x-show="!loading && tables.length === 0" class="text-sm text-ink/50">
+            Sin esquema sincronizado todavia.
+        </p>
+        <ul class="space-y-1 max-h-[70vh] overflow-y-auto">
+            <template x-for="table in filteredTables" :key="table">
+                <li>
+                    <button
+                        @click="selectTable(table)"
+                        class="w-full text-left px-2 py-1.5 rounded text-sm hover:bg-bg-secondary transition"
+                        :class="selected === table ? 'bg-bg-secondary text-accent' : 'text-ink/80'"
+                        x-text="table">
+                    </button>
+                </li>
+            </template>
+        </ul>
+    </aside>
+
+    <div>
+        <div id="cy" class="hidden md:block rounded-lg border border-bg-secondary" style="height: 65vh;"></div>
+
+        <div class="md:hidden rounded-lg border border-bg-secondary bg-bg-secondary/40 p-4 text-sm text-ink/70">
+            El diagrama interactivo esta disponible en pantallas mas grandes. Usa la lista de la izquierda para buscar una tabla.
+        </div>
+
+        <div x-show="selected" x-cloak class="mt-6 rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+            <h2 class="font-heading text-lg font-semibold mb-2" x-text="selected"></h2>
+            <p class="text-sm text-ink/70 mb-4" x-text="detail.ai_explanation || 'Generando explicacion...'"></p>
+            <table class="w-full text-sm">
+                <thead class="text-left text-ink/60">
+                    <tr>
+                        <th class="pr-4 py-1">Columna</th>
+                        <th class="pr-4 py-1">Tipo</th>
+                        <th class="py-1">FK</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <template x-for="col in (detail.columns || [])" :key="col.column_name">
+                        <tr class="border-t border-bg-secondary/60">
+                            <td class="pr-4 py-1 font-mono text-xs" x-text="col.column_name"></td>
+                            <td class="pr-4 py-1 text-ink/70" x-text="col.data_type"></td>
+                            <td class="py-1 text-ink/70" x-text="col.is_foreign_key ? ('-> ' + col.references_table) : ''"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://unpkg.com/cytoscape@3.30.1/dist/cytoscape.min.js"></script>
+<script>
+function schemaView(connectionId) {
+    return {
+        connectionId: connectionId,
+        tables: [],
+        search: "",
+        selected: null,
+        detail: {},
+        loading: true,
+        cy: null,
+        get filteredTables() {
+            const q = this.search.toLowerCase();
+            return this.tables.filter((t) => t.toLowerCase().includes(q));
+        },
+        async init() {
+            const res = await fetch(`/api/v1/connections/${this.connectionId}/diagram/`, {
+                credentials: "same-origin",
+            });
+            this.loading = false;
+            if (!res.ok) return;
+            const data = await res.json();
+            this.tables = data.nodes.map((n) => n.id).sort();
+            this.renderGraph(data);
+        },
+        renderGraph(data) {
+            const container = document.getElementById("cy");
+            if (!container) return;
+            const elements = [
+                ...data.nodes.map((n) => ({ data: { id: n.id, label: n.label } })),
+                ...data.edges.map((e) => ({
+                    data: { id: e.id, source: e.source, target: e.target, label: e.label },
+                })),
+            ];
+            this.cy = cytoscape({
+                container: container,
+                elements: elements,
+                style: [
+                    {
+                        selector: "node",
+                        style: {
+                            "background-color": "#0F2530",
+                            "border-color": "#1FD8E8",
+                            "border-width": 1.5,
+                            label: "data(label)",
+                            color: "#E8F6F8",
+                            "font-family": "JetBrains Mono, monospace",
+                            "font-size": 11,
+                            "text-valign": "center",
+                            shape: "round-rectangle",
+                            width: "label",
+                            height: 28,
+                            padding: "10px",
+                        },
+                    },
+                    {
+                        selector: "edge",
+                        style: {
+                            width: 1.5,
+                            "line-color": "#0EA5B7",
+                            "target-arrow-color": "#0EA5B7",
+                            "target-arrow-shape": "triangle",
+                            "curve-style": "bezier",
+                            "font-size": 9,
+                            color: "#E8F6F8",
+                        },
+                    },
+                ],
+                layout: { name: "cose", animate: false },
+                wheelSensitivity: 0.2,
+            });
+            this.cy.on("tap", "node", (evt) => this.selectTable(evt.target.id()));
+        },
+        async selectTable(name) {
+            this.selected = name;
+            this.detail = {};
+            const res = await fetch(
+                `/api/v1/connections/${this.connectionId}/schema/tables/${encodeURIComponent(name)}/`,
+                { credentials: "same-origin" }
+            );
+            if (res.ok) this.detail = await res.json();
+        },
+    };
+}
+</script>
+{% endblock %}

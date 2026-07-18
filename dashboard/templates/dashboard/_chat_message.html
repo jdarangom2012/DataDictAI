@@ -1,0 +1,22 @@
+<div class="mb-4">
+    <div class="flex justify-end mb-1">
+        <div class="max-w-[80%] rounded-lg bg-accent/10 border border-accent/30 px-4 py-2 text-sm">
+            {{ nl_query.question }}
+        </div>
+    </div>
+    <div class="flex justify-start">
+        <div class="max-w-[80%] rounded-lg bg-bg-secondary/60 border border-bg-secondary px-4 py-2 text-sm">
+            <p>{{ nl_query.answer }}</p>
+            {% if nl_query.referenced_tables %}
+            <div class="mt-2 flex flex-wrap gap-1.5">
+                {% for table in nl_query.referenced_tables %}
+                <a href="{% url 'dashboard:schema_view' connection.id %}?table={{ table }}"
+                   class="rounded bg-bg px-1.5 py-0.5 font-mono text-xs text-accent hover:text-accent-dark transition">
+                    {{ table }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

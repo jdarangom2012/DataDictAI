@@ -87,6 +87,11 @@ function schemaView(connectionId) {
             const data = await res.json();
             this.tables = data.nodes.map((n) => n.id).sort();
             this.renderGraph(data);
+
+            const requestedTable = new URLSearchParams(window.location.search).get("table");
+            if (requestedTable && this.tables.includes(requestedTable)) {
+                this.selectTable(requestedTable);
+            }
         },
         renderGraph(data) {
             const container = document.getElementById("cy");

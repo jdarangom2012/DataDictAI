@@ -8,10 +8,25 @@ inventar un proposito de negocio que no se puede deducir de la estructura.
 
 from __future__ import annotations
 
+import json
+
 from django.conf import settings
 from openai import OpenAI, OpenAIError
 
 NO_CONTEXT_EXPLANATION = "No hay suficiente contexto para explicar esta tabla."
+NO_ANSWER_FALLBACK = (
+    "No encuentro informacion suficiente en el esquema para responder esa pregunta."
+)
+
+_ASK_SYSTEM_PROMPT = (
+    "Eres un asistente que responde preguntas sobre la estructura de una base de datos "
+    "Postgres, en espanol. Se te da el esquema completo como JSON (tablas, columnas, tipos, "
+    "llaves foraneas) -- nunca datos reales de filas del cliente. Responde SOLO basandote en "
+    "los nombres y la estructura de ese JSON, y menciona explicitamente los nombres de tabla "
+    "relevantes en tu respuesta. Nunca inventes una tabla, columna o relacion que no aparezca "
+    "en el esquema provisto. Si la pregunta no se puede responder con esa estructura, responde "
+    f'exactamente: "{NO_ANSWER_FALLBACK}"'
+)
 
 _SYSTEM_PROMPT = (
     "Eres un asistente que documenta esquemas de bases de datos para desarrolladores. "
@@ -64,3 +79,31 @@ def explain_table(table_name: str, table_data: dict) -> str:
     if not explanation or not explanation.strip():
         return NO_CONTEXT_EXPLANATION
     return explanation.strip()
+
+
+def answer_question(question: str, raw_schema: dict) -> str:
+    """Responde una pregunta en lenguaje natural usando el esquema completo como
+    unico contexto (Documento 02 SS4: nunca datos reales de filas)."""
+    api_key = settings.AI_API_KEY
+    if not api_key:
+        return NO_ANSWER_FALLBACK
+
+    client = OpenAI(api_key=api_key)
+    schema_json = json.dumps(raw_schema, ensure_ascii=False)
+    try:
+        response = client.chat.completions.create(
+            model=settings.AI_MODEL,
+            messages=[
+                {"role": "system", "content": _ASK_SYSTEM_PROMPT},
+                {"role": "user", "content": f"Esquema:\n{schema_json}\n\nPregunta: {question}"},
+            ],
+            temperature=0.1,
+            max_tokens=400,
+        )
+    except OpenAIError as exc:
+        raise AIExplanationError("AI provider request failed") from exc
+
+    answer = response.choices[0].message.content
+    if not answer or not answer.strip():
+        return NO_ANSWER_FALLBACK
+    return answer.strip()

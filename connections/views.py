@@ -12,6 +12,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from ai_engine.client import AIExplanationError
+from ai_engine.models import NLQuery
+from ai_engine.serializers import AskQuestionSerializer, NLQuerySerializer
+from ai_engine.services import NoSchemaAvailableError, ask_question
 from connections.models import DatabaseConnection
 from connections.permissions import HasVerifiedEmail
 from connections.serializers import DatabaseConnectionCreateSerializer, DatabaseConnectionSerializer
@@ -19,6 +23,19 @@ from introspection.diagram import build_diagram
 from introspection.models import SchemaSnapshot, TableDoc
 from introspection.serializers import SchemaSnapshotSerializer, TableDocSerializer
 from introspection.tasks import introspect_database
+
+
+def _ai_unavailable_response():
+    return Response(
+        {
+            "error": {
+                "code": "ai_explanation_unavailable",
+                "message": "No pudimos generar una respuesta en este momento. Intenta de nuevo.",
+                "field": None,
+            }
+        },
+        status=503,
+    )
 
 
 def _schema_not_available_response():
@@ -105,3 +122,24 @@ class DatabaseConnectionViewSet(
                 status=404,
             )
         return Response(TableDocSerializer(table_doc).data)
+
+    @action(detail=True, methods=["post"], url_path="ask")
+    def ask(self, request, pk=None):
+        connection = self.get_object()
+        serializer = AskQuestionSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            nl_query = ask_question(connection, request.user, serializer.validated_data["question"])
+        except NoSchemaAvailableError:
+            return _schema_not_available_response()
+        except AIExplanationError:
+            return _ai_unavailable_response()
+
+        return Response(NLQuerySerializer(nl_query).data, status=201)
+
+    @action(detail=True, methods=["get"], url_path="ask/history")
+    def ask_history(self, request, pk=None):
+        connection = self.get_object()
+        queryset = NLQuery.objects.filter(connection=connection)[:50]
+        return Response(NLQuerySerializer(queryset, many=True).data)

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Chat - {{ connection.name }} - DataDict AI{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard:home' %}" class="text-sm text-accent hover:text-accent-dark">&larr; Conexiones</a>
+    <h1 class="font-heading text-2xl font-semibold mt-1">Preguntas sobre {{ connection.name }}</h1>
+</div>
+
+<div class="rounded-lg border border-bg-secondary bg-bg-secondary/20 p-6">
+    <div id="chat-messages"
+         hx-on:htmx:after-swap="this.scrollTop = this.scrollHeight"
+         class="mb-4 max-h-[60vh] overflow-y-auto">
+        {% if not history %}
+        <p class="text-sm text-ink/50">
+            Pregunta algo como &quot;&iquest;qu&eacute; tabla tiene el email del usuario?&quot;.
+        </p>
+        {% endif %}
+        {% for nl_query in history %}
+            {% include "dashboard/_chat_message.html" %}
+        {% endfor %}
+    </div>
+
+    <form hx-post="{% url 'dashboard:ask_message' connection.id %}"
+          hx-target="#chat-messages"
+          hx-swap="beforeend"
+          hx-on:htmx:after-request="this.reset()"
+          class="flex gap-2">
+        {% csrf_token %}
+        <input type="text" name="question" required placeholder="Pregunta algo sobre tu esquema..."
+               class="flex-1 rounded-md bg-bg border border-bg-secondary px-3 py-2 text-sm focus:outline-none focus:border-accent">
+        <button type="submit" class="rounded-md bg-accent px-4 py-2 text-sm font-medium text-bg hover:bg-accent-dark transition">
+            Preguntar
+        </button>
+    </form>
+</div>
+{% endblock %}

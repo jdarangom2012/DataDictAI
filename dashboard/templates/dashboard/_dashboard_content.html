@@ -36,6 +36,10 @@
                        class="text-xs text-accent hover:text-accent-dark transition">
                         Ver esquema
                     </a>
+                    <a href="{% url 'dashboard:chat_view' connection.id %}"
+                       class="text-xs text-accent hover:text-accent-dark transition">
+                        Preguntar
+                    </a>
                     {% endif %}
                     <button
                         hx-post="{% url 'dashboard:sync_connection' connection.id %}"

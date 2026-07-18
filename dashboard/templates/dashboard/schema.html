@@ -39,24 +39,26 @@
         <div x-show="selected" x-cloak class="mt-6 rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
             <h2 class="font-heading text-lg font-semibold mb-2" x-text="selected"></h2>
             <p class="text-sm text-ink/70 mb-4" x-text="detail.ai_explanation || 'Generando explicacion...'"></p>
-            <table class="w-full text-sm">
-                <thead class="text-left text-ink/60">
-                    <tr>
-                        <th class="pr-4 py-1">Columna</th>
-                        <th class="pr-4 py-1">Tipo</th>
-                        <th class="py-1">FK</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <template x-for="col in (detail.columns || [])" :key="col.column_name">
-                        <tr class="border-t border-bg-secondary/60">
-                            <td class="pr-4 py-1 font-mono text-xs" x-text="col.column_name"></td>
-                            <td class="pr-4 py-1 text-ink/70" x-text="col.data_type"></td>
-                            <td class="py-1 text-ink/70" x-text="col.is_foreign_key ? ('-> ' + col.references_table) : ''"></td>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="text-left text-ink/60">
+                        <tr>
+                            <th class="pr-4 py-1">Columna</th>
+                            <th class="pr-4 py-1">Tipo</th>
+                            <th class="py-1">FK</th>
                         </tr>
-                    </template>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <template x-for="col in (detail.columns || [])" :key="col.column_name">
+                            <tr class="border-t border-bg-secondary/60">
+                                <td class="pr-4 py-1 font-mono text-xs whitespace-nowrap" x-text="col.column_name"></td>
+                                <td class="pr-4 py-1 text-ink/70 whitespace-nowrap" x-text="col.data_type"></td>
+                                <td class="py-1 text-ink/70 whitespace-nowrap" x-text="col.is_foreign_key ? ('-> ' + col.references_table) : ''"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

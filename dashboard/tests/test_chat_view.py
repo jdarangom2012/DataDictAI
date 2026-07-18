@@ -99,7 +99,9 @@ def test_ask_message_creates_nl_query_and_renders_fragment(client, connection):
 def test_ask_message_rejects_empty_question(client, connection):
     response = client.post(f"/connections/{connection.id}/ask/message/", {"question": "   "})
 
-    assert response.status_code == 400
+    # htmx no hace swap en 4xx/5xx por defecto -- estos errores se devuelven
+    # como 200 a proposito para que el mensaje sea visible en pantalla.
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db
@@ -108,7 +110,7 @@ def test_ask_message_shows_error_when_no_schema_yet(client, connection):
         f"/connections/{connection.id}/ask/message/", {"question": "¿qué tablas hay?"}
     )
 
-    assert response.status_code == 404
+    assert response.status_code == 200
     assert "esquema sincronizado" in response.content.decode()
 
 
@@ -121,7 +123,7 @@ def test_ask_message_shows_error_when_ai_unavailable(client, connection):
             f"/connections/{connection.id}/ask/message/", {"question": "¿qué tablas hay?"}
         )
 
-    assert response.status_code == 503
+    assert response.status_code == 200
 
 
 @pytest.mark.django_db

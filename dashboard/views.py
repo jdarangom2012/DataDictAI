@@ -2,6 +2,13 @@
 
 Reutiliza DatabaseConnectionCreateSerializer para no duplicar la validacion
 de formato ni la encriptacion que ya usa la API REST (connections/serializers.py).
+
+IMPORTANTE: estas respuestas de error se devuelven con status 200 a proposito.
+htmx (config.responseHandling por defecto) NO actualiza el DOM en respuestas
+4xx/5xx -- las trata como error y no hace swap, asi que el mensaje nunca se
+veria en pantalla. El estado de error es parte normal de la UI aqui, no una
+falla de protocolo (la API DRF en connections/views.py si usa codigos correctos,
+para consumidores que no son htmx).
 """
 
 from __future__ import annotations
@@ -45,7 +52,6 @@ def create_connection(request):
                 "connections": connections,
                 "form_error": "Debes verificar tu email antes de conectar una base de datos.",
             },
-            status=403,
         )
 
     serializer = DatabaseConnectionCreateSerializer(
@@ -61,7 +67,6 @@ def create_connection(request):
             request,
             "dashboard/_dashboard_content.html",
             {"connections": connections, "form_error": first_error},
-            status=400,
         )
 
     connection = serializer.save()
@@ -112,7 +117,6 @@ def ask_message(request, pk):
             request,
             "dashboard/_chat_error.html",
             {"message": "Escribe una pregunta antes de enviar."},
-            status=400,
         )
 
     try:
@@ -122,14 +126,12 @@ def ask_message(request, pk):
             request,
             "dashboard/_chat_error.html",
             {"message": "Todavia no hay un esquema sincronizado para esta conexion."},
-            status=404,
         )
     except AIExplanationError:
         return render(
             request,
             "dashboard/_chat_error.html",
             {"message": "No pudimos generar una respuesta en este momento. Intenta de nuevo."},
-            status=503,
         )
 
     return render(

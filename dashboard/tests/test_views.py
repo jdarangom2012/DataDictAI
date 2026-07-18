@@ -83,7 +83,10 @@ def test_create_connection_shows_error_on_invalid_format(client):
         {"name": "Malo", "connection_string": "not-a-connection-string"},
     )
 
-    assert response.status_code == 400
+    # htmx no actualiza el DOM en respuestas 4xx/5xx (config.responseHandling por
+    # defecto) -- por eso este error se devuelve como 200 a proposito, para que
+    # el mensaje si se swappee y sea visible en pantalla.
+    assert response.status_code == 200
     assert DatabaseConnection.objects.count() == 0
     assert "esquema postgres" in response.content.decode()
 
@@ -104,7 +107,7 @@ def test_create_connection_blocked_when_email_not_verified(django_user_model):
         {"name": "Produccion", "connection_string": VALID_DSN},
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 200
     assert "verificar tu email" in response.content.decode()
     assert DatabaseConnection.objects.count() == 0
 

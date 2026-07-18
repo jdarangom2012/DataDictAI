@@ -4,59 +4,61 @@
 
 {% if connections %}
 <div class="mb-8 overflow-hidden rounded-lg border border-bg-secondary">
-    <table class="w-full text-sm">
-        <thead class="bg-bg-secondary text-left text-ink/70">
-            <tr>
-                <th class="px-4 py-3 font-medium">Nombre</th>
-                <th class="px-4 py-3 font-medium">Motor</th>
-                <th class="px-4 py-3 font-medium">Estado</th>
-                <th class="px-4 py-3 font-medium">Ultima sincronizacion</th>
-                <th class="px-4 py-3 font-medium"></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for connection in connections %}
-            <tr class="border-t border-bg-secondary">
-                <td class="px-4 py-3">{{ connection.name }}</td>
-                <td class="px-4 py-3 text-ink/70">{{ connection.get_engine_display }}</td>
-                <td class="px-4 py-3">
-                    <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs
-                        {% if connection.status == 'connected' %}bg-success/10 text-success
-                        {% elif connection.status == 'error' %}bg-red-500/10 text-red-400
-                        {% else %}bg-warning/10 text-warning{% endif %}">
-                        {{ connection.get_status_display }}
-                    </span>
-                </td>
-                <td class="px-4 py-3 text-ink/70">
-                    {% if connection.last_synced_at %}{{ connection.last_synced_at|date:"d/m/Y H:i" }}{% else %}Nunca{% endif %}
-                </td>
-                <td class="px-4 py-3 text-right space-x-3">
-                    {% if connection.status == 'connected' %}
-                    <a href="{% url 'dashboard:schema_view' connection.id %}"
-                       class="text-xs text-accent hover:text-accent-dark transition">
-                        Ver esquema
-                    </a>
-                    <a href="{% url 'dashboard:chat_view' connection.id %}"
-                       class="text-xs text-accent hover:text-accent-dark transition">
-                        Preguntar
-                    </a>
-                    <a href="/api/v1/connections/{{ connection.id }}/export/markdown/"
-                       class="text-xs text-accent hover:text-accent-dark transition">
-                        Descargar Markdown
-                    </a>
-                    {% endif %}
-                    <button
-                        hx-post="{% url 'dashboard:sync_connection' connection.id %}"
-                        hx-target="#dashboard-content"
-                        hx-swap="innerHTML"
-                        class="text-xs text-accent hover:text-accent-dark transition">
-                        Sincronizar
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+            <thead class="bg-bg-secondary text-left text-ink/70">
+                <tr>
+                    <th class="px-4 py-3 font-medium whitespace-nowrap">Nombre</th>
+                    <th class="px-4 py-3 font-medium whitespace-nowrap">Motor</th>
+                    <th class="px-4 py-3 font-medium whitespace-nowrap">Estado</th>
+                    <th class="px-4 py-3 font-medium whitespace-nowrap">Ultima sincronizacion</th>
+                    <th class="px-4 py-3 font-medium"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for connection in connections %}
+                <tr class="border-t border-bg-secondary">
+                    <td class="px-4 py-3 whitespace-nowrap">{{ connection.name }}</td>
+                    <td class="px-4 py-3 text-ink/70 whitespace-nowrap">{{ connection.get_engine_display }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs
+                            {% if connection.status == 'connected' %}bg-success/10 text-success
+                            {% elif connection.status == 'error' %}bg-red-500/10 text-red-400
+                            {% else %}bg-warning/10 text-warning{% endif %}">
+                            {{ connection.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-ink/70 whitespace-nowrap">
+                        {% if connection.last_synced_at %}{{ connection.last_synced_at|date:"d/m/Y H:i" }}{% else %}Nunca{% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-right whitespace-nowrap space-x-3">
+                        {% if connection.status == 'connected' %}
+                        <a href="{% url 'dashboard:schema_view' connection.id %}"
+                           class="text-xs text-accent hover:text-accent-dark transition">
+                            Ver esquema
+                        </a>
+                        <a href="{% url 'dashboard:chat_view' connection.id %}"
+                           class="text-xs text-accent hover:text-accent-dark transition">
+                            Preguntar
+                        </a>
+                        <a href="/api/v1/connections/{{ connection.id }}/export/markdown/"
+                           class="text-xs text-accent hover:text-accent-dark transition">
+                            Descargar Markdown
+                        </a>
+                        {% endif %}
+                        <button
+                            hx-post="{% url 'dashboard:sync_connection' connection.id %}"
+                            hx-target="#dashboard-content"
+                            hx-swap="innerHTML"
+                            class="text-xs text-accent hover:text-accent-dark transition">
+                            Sincronizar
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% else %}
 <p class="mb-6 text-ink/70">Todavia no has conectado ninguna base de datos.</p>

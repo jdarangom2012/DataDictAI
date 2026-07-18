@@ -164,4 +164,6 @@ def _fetch_indexes(conn: psycopg.Connection) -> dict[str, list[dict]]:
 def _fetch_row_estimates(conn: psycopg.Connection) -> dict[str, int]:
     with conn.cursor() as cur:
         cur.execute(_ROW_ESTIMATES_SQL)
-        return {row[0]: row[1] for row in cur.fetchall()}
+        # Postgres devuelve reltuples = -1 cuando la tabla nunca se ha ANALYZE-ado
+        # (no significa "cero filas", significa "sin estimar todavia").
+        return {row[0]: row[1] for row in cur.fetchall() if row[1] is not None and row[1] >= 0}

@@ -7,6 +7,8 @@ La introspeccion nunca corre en la request: siempre se dispara via Celery
 
 from __future__ import annotations
 
+from django.http import HttpResponse
+from django.utils.text import slugify
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -19,6 +21,7 @@ from ai_engine.services import NoSchemaAvailableError, ask_question
 from connections.models import DatabaseConnection
 from connections.permissions import HasVerifiedEmail
 from connections.serializers import DatabaseConnectionCreateSerializer, DatabaseConnectionSerializer
+from exports.markdown import generate_markdown
 from introspection.diagram import build_diagram
 from introspection.models import SchemaSnapshot, TableDoc
 from introspection.serializers import SchemaSnapshotSerializer, TableDocSerializer
@@ -143,3 +146,16 @@ class DatabaseConnectionViewSet(
         connection = self.get_object()
         queryset = NLQuery.objects.filter(connection=connection)[:50]
         return Response(NLQuerySerializer(queryset, many=True).data)
+
+    @action(detail=True, methods=["get"], url_path="export/markdown")
+    def export_markdown(self, request, pk=None):
+        connection = self.get_object()
+        snapshot = self._latest_snapshot(connection)
+        if snapshot is None:
+            return _schema_not_available_response()
+
+        content = generate_markdown(connection, snapshot)
+        filename = f"{slugify(connection.name) or 'esquema'}-schema.md"
+        response = HttpResponse(content, content_type="text/markdown; charset=utf-8")
+        response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return response

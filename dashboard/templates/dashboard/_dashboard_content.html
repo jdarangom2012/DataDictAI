@@ -40,6 +40,10 @@
                        class="text-xs text-accent hover:text-accent-dark transition">
                         Preguntar
                     </a>
+                    <a href="/api/v1/connections/{{ connection.id }}/export/markdown/"
+                       class="text-xs text-accent hover:text-accent-dark transition">
+                        Descargar Markdown
+                    </a>
                     {% endif %}
                     <button
                         hx-post="{% url 'dashboard:sync_connection' connection.id %}"

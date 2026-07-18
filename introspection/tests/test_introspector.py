@@ -85,6 +85,20 @@ def test_introspect_schema_includes_row_count_estimate_and_indexes(allow_private
 
 
 @pytest.mark.django_db(transaction=True)
+def test_introspect_schema_reports_no_estimate_for_a_never_analyzed_table(allow_private_hosts):
+    # Postgres devuelve reltuples = -1 (no 0) para una tabla que nunca paso por ANALYZE.
+    with django_db_connection.cursor() as cursor:
+        cursor.execute("CREATE TABLE it_fresh (id SERIAL PRIMARY KEY)")
+
+    try:
+        result = introspect_schema(_dsn_from_django_connection())
+        assert result["tables"]["it_fresh"]["row_count_estimate"] is None
+    finally:
+        with django_db_connection.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS it_fresh")
+
+
+@pytest.mark.django_db(transaction=True)
 def test_introspect_schema_rejects_schema_over_table_limit(allow_private_hosts, monkeypatch):
     monkeypatch.setattr("introspection.introspector.MAX_TABLES", 0)
     with pytest.raises(SchemaTooLargeError):

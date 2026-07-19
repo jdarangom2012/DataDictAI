@@ -45,6 +45,10 @@
                            class="text-xs text-accent hover:text-accent-dark transition">
                             Descargar Markdown
                         </a>
+                        <a href="{% url 'dashboard:diffs_view' connection.id %}"
+                           class="text-xs text-accent hover:text-accent-dark transition">
+                            Ver cambios
+                        </a>
                         {% endif %}
                         <button
                             hx-post="{% url 'dashboard:sync_connection' connection.id %}"

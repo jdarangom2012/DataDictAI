@@ -26,6 +26,8 @@ from introspection.diagram import build_diagram
 from introspection.models import SchemaSnapshot, TableDoc
 from introspection.serializers import SchemaSnapshotSerializer, TableDocSerializer
 from introspection.tasks import introspect_database
+from snapshots.models import SchemaDiff
+from snapshots.serializers import SchemaDiffSerializer
 
 
 def _ai_unavailable_response():
@@ -85,7 +87,9 @@ class DatabaseConnectionViewSet(
         return SchemaSnapshot.objects.filter(connection=connection).order_by("-created_at").first()
 
     @action(detail=True, methods=["get"], url_path="schema")
-    def schema(self, request, pk=None):
+    def get_latest_schema(self, request, pk=None):
+        # No llamar este metodo "schema": colisiona con el atributo view.schema
+        # que drf-spectacular usa para la introspeccion del OpenAPI.
         snapshot = self._latest_snapshot(self.get_object())
         if snapshot is None:
             return _schema_not_available_response()
@@ -159,3 +163,9 @@ class DatabaseConnectionViewSet(
         response = HttpResponse(content, content_type="text/markdown; charset=utf-8")
         response["Content-Disposition"] = f'attachment; filename="{filename}"'
         return response
+
+    @action(detail=True, methods=["get"], url_path="diffs")
+    def diffs(self, request, pk=None):
+        connection = self.get_object()
+        queryset = SchemaDiff.objects.filter(connection=connection)[:50]
+        return Response(SchemaDiffSerializer(queryset, many=True).data)

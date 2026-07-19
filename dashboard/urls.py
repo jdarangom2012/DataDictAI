@@ -11,4 +11,5 @@ urlpatterns = [
     path("connections/<int:pk>/schema/", views.schema_view, name="schema_view"),
     path("connections/<int:pk>/ask/", views.chat_view, name="chat_view"),
     path("connections/<int:pk>/ask/message/", views.ask_message, name="ask_message"),
+    path("connections/<int:pk>/diffs/", views.diffs_view, name="diffs_view"),
 ]

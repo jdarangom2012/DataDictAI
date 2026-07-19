@@ -24,6 +24,7 @@ from connections.models import DatabaseConnection
 from connections.permissions import user_has_verified_email
 from connections.serializers import DatabaseConnectionCreateSerializer
 from introspection.tasks import introspect_database
+from snapshots.models import SchemaDiff
 
 
 def _user_connections(user):
@@ -95,6 +96,13 @@ def sync_connection(request, pk):
 def schema_view(request, pk):
     connection = get_object_or_404(DatabaseConnection, pk=pk, user=request.user)
     return render(request, "dashboard/schema.html", {"connection": connection})
+
+
+@login_required
+def diffs_view(request, pk):
+    connection = get_object_or_404(DatabaseConnection, pk=pk, user=request.user)
+    diffs = list(SchemaDiff.objects.filter(connection=connection)[:50])
+    return render(request, "dashboard/diffs.html", {"connection": connection, "diffs": diffs})
 
 
 @login_required

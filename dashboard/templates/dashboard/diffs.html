@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Cambios - {{ connection.name }} - DataDict AI{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard:home' %}" class="text-sm text-accent hover:text-accent-dark">&larr; Conexiones</a>
+    <h1 class="font-heading text-2xl font-semibold mt-1">Historial de cambios: {{ connection.name }}</h1>
+</div>
+
+{% if not diffs %}
+<p class="text-ink/70">
+    Todavia no se detectaron cambios de esquema entre sincronizaciones. Cada vez
+    que sincronizas y el esquema cambio desde la ultima vez, aparece aqui.
+</p>
+{% endif %}
+
+<div class="space-y-6">
+    {% for diff in diffs %}
+    <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+        <p class="text-xs text-ink/50 mb-3">{{ diff.created_at|date:"d/m/Y H:i" }}</p>
+
+        {% for table in diff.changes_json.tables_added %}
+        <div class="text-sm text-success mb-1">
+            + Tabla agregada: <span class="font-mono">{{ table }}</span>
+        </div>
+        {% endfor %}
+
+        {% for table in diff.changes_json.tables_removed %}
+        <div class="text-sm text-red-400 mb-1">
+            - Tabla eliminada: <span class="font-mono">{{ table }}</span>
+        </div>
+        {% endfor %}
+
+        {% for table_name, table_diff in diff.changes_json.tables_changed.items %}
+        <div class="text-sm text-warning mb-1">
+            ~ Tabla modificada: <span class="font-mono">{{ table_name }}</span>
+        </div>
+        <ul class="ml-4 mb-2 text-xs text-ink/70 space-y-0.5">
+            {% for col in table_diff.columns_added %}
+            <li class="text-success">+ columna {{ col }}</li>
+            {% endfor %}
+            {% for col in table_diff.columns_removed %}
+            <li class="text-red-400">- columna {{ col }}</li>
+            {% endfor %}
+            {% for change in table_diff.columns_changed %}
+            <li>~ {{ change.column }}.{{ change.field }}: {{ change.from }} &rarr; {{ change.to }}</li>
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

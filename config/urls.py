@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import include, path
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 
 from config.views import health_check
@@ -12,6 +13,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health_check"),
     path("api/v1/", include(router.urls)),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("accounts/", include("allauth.urls")),
     path("", include("dashboard.urls")),
 ]

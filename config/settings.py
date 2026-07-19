@@ -161,6 +161,10 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "DataDict AI API",
     "DESCRIPTION": "API de DataDict AI — NautilusTech",
     "VERSION": "1.0.0",
+    # SpectacularAPIView no hereda DEFAULT_PERMISSION_CLASSES (usa su propio
+    # SERVE_PERMISSIONS, publico por defecto). Documento 03 SS1: ningun
+    # endpoint bajo /api/ es publico.
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAuthenticated"],
 }
 
 # Ningun logger debe imprimir connection strings ni credenciales (Documento 04 Parte A.6).

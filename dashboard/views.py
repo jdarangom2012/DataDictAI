@@ -14,9 +14,11 @@ para consumidores que no son htmx).
 from __future__ import annotations
 
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_POST
 
+from accounts.billing import PLAN_CONNECTION_LIMITS, BillingError, create_checkout
 from ai_engine.client import AIExplanationError
 from ai_engine.models import NLQuery
 from ai_engine.services import NoSchemaAvailableError, ask_question
@@ -52,6 +54,20 @@ def create_connection(request):
             {
                 "connections": connections,
                 "form_error": "Debes verificar tu email antes de conectar una base de datos.",
+            },
+        )
+
+    limit = PLAN_CONNECTION_LIMITS.get(request.user.plan, 1)
+    if connections.count() >= limit:
+        return render(
+            request,
+            "dashboard/_dashboard_content.html",
+            {
+                "connections": connections,
+                "form_error": (
+                    "Alcanzaste el limite de conexiones de tu plan actual. "
+                    "Sube de plan para conectar mas bases de datos."
+                ),
             },
         )
 
@@ -147,3 +163,42 @@ def ask_message(request, pk):
         "dashboard/_chat_message.html",
         {"connection": connection, "nl_query": nl_query},
     )
+
+
+@login_required
+def billing_view(request):
+    return render(
+        request,
+        "dashboard/billing.html",
+        {
+            "current_plan": request.user.plan,
+            "plan_limits": PLAN_CONNECTION_LIMITS,
+        },
+    )
+
+
+@login_required
+@require_POST
+def start_checkout(request):
+    plan = request.POST.get("plan")
+    if plan not in PLAN_CONNECTION_LIMITS:
+        return render(
+            request,
+            "dashboard/_billing_error.html",
+            {"message": "Plan invalido."},
+        )
+
+    try:
+        checkout_url = create_checkout(request.user, plan)
+    except BillingError:
+        return render(
+            request,
+            "dashboard/_billing_error.html",
+            {"message": "No pudimos iniciar el pago. Intenta de nuevo."},
+        )
+
+    # HX-Redirect le dice a htmx que haga una redireccion de pagina completa
+    # (necesario porque el checkout vive fuera de nuestro dominio).
+    response = HttpResponse(status=200)
+    response["HX-Redirect"] = checkout_url
+    return response

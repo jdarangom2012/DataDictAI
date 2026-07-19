@@ -9,7 +9,8 @@ class User(AbstractUser):
         TEAM = "team", "Team"
 
     plan = models.CharField(max_length=20, choices=Plan.choices, default=Plan.STARTER)
-    stripe_customer_id = models.CharField(max_length=255, blank=True, null=True)
+    # LemonSqueezy, no Stripe -- Colombia no esta soportada para cuenta vendedora en Stripe.
+    lemonsqueezy_customer_id = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return self.username

@@ -15,6 +15,10 @@ SECRET_KEY = env("DJANGO_SECRET_KEY", default="unsafe-dev-key-change-me")
 DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost", "127.0.0.1"])
+# Necesario para probar webhooks/checkout con un tunel https (ngrok) contra
+# el server local -- Django ve la request llegar por HTTP puro sin esto.
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[])
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Fernet key used to encrypt/decrypt DatabaseConnection.encrypted_credentials.
 # Lives in env / Azure Key Vault at runtime — never in the repo, never logged.
@@ -29,6 +33,15 @@ ALLOW_PRIVATE_DB_HOSTS = env.bool("ALLOW_PRIVATE_DB_HOSTS", default=False)
 # Motor de IA (ai_engine) — Documento 02 §6: solo recibe estructura, nunca filas de datos.
 AI_API_KEY = env("AI_API_KEY", default=None)
 AI_MODEL = env("AI_MODEL", default="gpt-4o-mini")
+
+# Billing (accounts) — LemonSqueezy en vez de Stripe: Colombia no esta en la
+# lista de paises donde Stripe permite crear cuenta vendedora.
+LEMONSQUEEZY_API_KEY = env("LEMONSQUEEZY_API_KEY", default=None)
+LEMONSQUEEZY_STORE_ID = env("LEMONSQUEEZY_STORE_ID", default=None)
+LEMONSQUEEZY_WEBHOOK_SECRET = env("LEMONSQUEEZY_WEBHOOK_SECRET", default=None)
+LEMONSQUEEZY_VARIANT_STARTER = env("LEMONSQUEEZY_VARIANT_STARTER", default=None)
+LEMONSQUEEZY_VARIANT_PRO = env("LEMONSQUEEZY_VARIANT_PRO", default=None)
+LEMONSQUEEZY_VARIANT_TEAM = env("LEMONSQUEEZY_VARIANT_TEAM", default=None)
 
 INSTALLED_APPS = [
     "django.contrib.admin",

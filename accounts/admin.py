@@ -7,7 +7,7 @@ from accounts.models import User
 @admin.register(User)
 class DataDictUserAdmin(UserAdmin):
     fieldsets = UserAdmin.fieldsets + (
-        ("Plan", {"fields": ("plan", "stripe_customer_id")}),
+        ("Plan", {"fields": ("plan", "lemonsqueezy_customer_id")}),
     )
     list_display = ("username", "email", "plan", "is_staff")
     list_filter = UserAdmin.list_filter + ("plan",)

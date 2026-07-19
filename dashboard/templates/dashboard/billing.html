@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Planes - DataDict AI{% endblock %}
+{% block content %}
+<div class="mb-6">
+    <a href="{% url 'dashboard:home' %}" class="text-sm text-accent hover:text-accent-dark">&larr; Conexiones</a>
+    <h1 class="font-heading text-2xl font-semibold mt-1">Planes</h1>
+    <p class="text-sm text-ink/70 mt-1">
+        Plan actual: <span class="font-mono text-accent">{{ current_plan }}</span>
+    </p>
+</div>
+
+<div id="billing-error" class="mb-6"></div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6 flex flex-col">
+        <h2 class="font-heading text-lg font-semibold">Starter</h2>
+        <p class="text-2xl font-heading mt-2">$19<span class="text-sm text-ink/50">/mes</span></p>
+        <p class="text-sm text-ink/70 mt-3 flex-1">
+            1 conexión de base de datos. Diccionario de datos, diagrama ER, chat con IA
+            sobre tu esquema, exportación a Markdown y detección de cambios.
+        </p>
+        <button
+            hx-post="{% url 'dashboard:start_checkout' %}"
+            hx-vals='{"plan": "starter"}'
+            hx-target="#billing-error"
+            hx-swap="innerHTML"
+            {% if current_plan == "starter" %}disabled{% endif %}
+            class="mt-4 rounded-md px-4 py-2 text-sm font-medium transition
+                {% if current_plan == "starter" %}
+                    bg-bg-secondary text-ink/40 cursor-not-allowed
+                {% else %}
+                    bg-accent text-bg hover:bg-accent-dark
+                {% endif %}">
+            {% if current_plan == "starter" %}Plan actual{% else %}Elegir Starter{% endif %}
+        </button>
+    </div>
+
+    <div class="rounded-lg border border-accent/50 bg-bg-secondary/40 p-6 flex flex-col">
+        <h2 class="font-heading text-lg font-semibold">Pro</h2>
+        <p class="text-2xl font-heading mt-2">$39<span class="text-sm text-ink/50">/mes</span></p>
+        <p class="text-sm text-ink/70 mt-3 flex-1">
+            Hasta 5 conexiones de base de datos. Diccionario de datos, diagrama ER, chat
+            con IA sobre tu esquema, exportación a Markdown y detección de cambios.
+        </p>
+        <button
+            hx-post="{% url 'dashboard:start_checkout' %}"
+            hx-vals='{"plan": "pro"}'
+            hx-target="#billing-error"
+            hx-swap="innerHTML"
+            {% if current_plan == "pro" %}disabled{% endif %}
+            class="mt-4 rounded-md px-4 py-2 text-sm font-medium transition
+                {% if current_plan == "pro" %}
+                    bg-bg-secondary text-ink/40 cursor-not-allowed
+                {% else %}
+                    bg-accent text-bg hover:bg-accent-dark
+                {% endif %}">
+            {% if current_plan == "pro" %}Plan actual{% else %}Elegir Pro{% endif %}
+        </button>
+    </div>
+
+    <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6 flex flex-col">
+        <h2 class="font-heading text-lg font-semibold">Team</h2>
+        <p class="text-2xl font-heading mt-2">$79<span class="text-sm text-ink/50">/mes</span></p>
+        <p class="text-sm text-ink/70 mt-3 flex-1">
+            Hasta 15 conexiones de base de datos. Diccionario de datos, diagrama ER, chat
+            con IA sobre tu esquema, exportación a Markdown y detección de cambios.
+        </p>
+        <button
+            hx-post="{% url 'dashboard:start_checkout' %}"
+            hx-vals='{"plan": "team"}'
+            hx-target="#billing-error"
+            hx-swap="innerHTML"
+            {% if current_plan == "team" %}disabled{% endif %}
+            class="mt-4 rounded-md px-4 py-2 text-sm font-medium transition
+                {% if current_plan == "team" %}
+                    bg-bg-secondary text-ink/40 cursor-not-allowed
+                {% else %}
+                    bg-accent text-bg hover:bg-accent-dark
+                {% endif %}">
+            {% if current_plan == "team" %}Plan actual{% else %}Elegir Team{% endif %}
+        </button>
+    </div>
+</div>
+{% endblock %}

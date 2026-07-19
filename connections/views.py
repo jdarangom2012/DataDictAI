@@ -11,9 +11,11 @@ from django.http import HttpResponse
 from django.utils.text import slugify
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import APIException
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from accounts.billing import PLAN_CONNECTION_LIMITS
 from ai_engine.client import AIExplanationError
 from ai_engine.models import NLQuery
 from ai_engine.serializers import AskQuestionSerializer, NLQuerySerializer
@@ -41,6 +43,12 @@ def _ai_unavailable_response():
         },
         status=503,
     )
+
+
+class PlanLimitReachedError(APIException):
+    status_code = 403
+    default_detail = "Alcanzaste el limite de conexiones de tu plan actual."
+    default_code = "plan_limit_reached"
 
 
 def _schema_not_available_response():
@@ -74,6 +82,11 @@ class DatabaseConnectionViewSet(
         return DatabaseConnectionSerializer
 
     def perform_create(self, serializer):
+        user = self.request.user
+        limit = PLAN_CONNECTION_LIMITS.get(user.plan, 1)
+        if DatabaseConnection.objects.filter(user=user).count() >= limit:
+            raise PlanLimitReachedError()
+
         connection = serializer.save()
         introspect_database.delay(connection.id)
 

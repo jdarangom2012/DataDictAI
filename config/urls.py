@@ -13,6 +13,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("health/", health_check, name="health_check"),
     path("api/v1/", include(router.urls)),
+    path("api/v1/billing/", include("accounts.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("accounts/", include("allauth.urls")),

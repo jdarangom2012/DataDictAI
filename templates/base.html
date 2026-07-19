@@ -45,12 +45,17 @@
                 DataDict <span class="text-accent">AI</span>
             </a>
             {% if user.is_authenticated %}
-            <form method="post" action="{% url 'account_logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="text-sm text-ink/70 hover:text-accent transition">
-                    Cerrar sesion ({{ user.email|default:user.username }})
-                </button>
-            </form>
+            <div class="flex items-center gap-4">
+                <a href="{% url 'dashboard:billing_view' %}" class="text-sm text-ink/70 hover:text-accent transition">
+                    Planes
+                </a>
+                <form method="post" action="{% url 'account_logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="text-sm text-ink/70 hover:text-accent transition">
+                        Cerrar sesion ({{ user.email|default:user.username }})
+                    </button>
+                </form>
+            </div>
             {% endif %}
         </div>
     </header>

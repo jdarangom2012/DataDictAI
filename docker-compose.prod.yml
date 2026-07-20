@@ -1,0 +1,92 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-datadictai}
+      POSTGRES_USER: ${POSTGRES_USER:-datadictai}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-datadictai}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Sin "ports:" a proposito: Postgres solo debe ser alcanzable desde los
+    # otros contenedores de este mismo docker-compose, nunca desde fuera de la VM.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-datadictai}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    # Igual que Postgres: sin "ports:", solo accesible dentro de la red de Docker.
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    command: gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    command: celery -A config worker -l info
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  beat:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    command: celery -A config beat -l info
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      # El puerto 80 de la VM ya lo usa otra app (nginx). DataDict AI queda
+      # en el 8080 hasta que tenga su propio dominio y podamos separar por
+      # nombre en vez de por puerto.
+      - "8080:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
+  caddy_config:

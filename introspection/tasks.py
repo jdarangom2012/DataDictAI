@@ -54,6 +54,14 @@ def introspect_database(connection_id: int) -> int:
     except Exception:
         logger.warning("Schema diff failed for connection_id=%s", connection_id)
 
+    # Documento 02 SS4.3: generar la explicacion IA de cada tabla es una tarea
+    # aparte (una llamada a la IA por tabla) para no bloquear la introspeccion
+    # con eso. ai_engine.tasks.generate_ai_docs ya cachea por tabla y nunca
+    # rompe si la IA falla (usa NO_CONTEXT_EXPLANATION de respaldo).
+    from ai_engine.tasks import generate_ai_docs
+
+    generate_ai_docs.delay(snapshot.id)
+
     return snapshot.id
 
 

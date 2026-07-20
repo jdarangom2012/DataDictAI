@@ -13,3 +13,5 @@ media/
 htmlcov/
 *.log
 .DS_Store
+backups/
+celerybeat-schedule

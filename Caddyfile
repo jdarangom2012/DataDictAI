@@ -1,0 +1,10 @@
+# Mientras no haya un dominio propio, Caddy sirve en texto plano. El puerto 80
+# de la VM ya lo usa otra app, asi que docker-compose.prod.yml mapea el 8080
+# del host a este puerto 80 interno del contenedor -- no hace falta cambiar
+# nada aqui por eso. En cuanto DataDict AI tenga su propio dominio, cambiar
+# ":80" por el dominio real (ej. "datadictai.com") -- Caddy provisiona el
+# certificado TLS con Let's Encrypt solo, sin configuracion adicional (en ese
+# momento tambien hay que volver a mapear el puerto 443 en docker-compose).
+:80 {
+    reverse_proxy web:8000
+}

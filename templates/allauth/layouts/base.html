@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% comment %}
+Override del layout raiz de django-allauth (0.61, sistema de {% element %}/slots).
+Todas las paginas de cuenta (login, signup, logout, password reset, confirmacion
+de email...) heredan de allauth/layouts/base.html -- sin este override usan el
+HTML sin estilo por defecto del paquete. No podemos envolver el bloque "content"
+en un div propio (allauth ya lo redefine mas abajo en su cadena de herencia), asi
+que en vez de eso re-estilamos por selector de etiqueta, reutilizando la misma
+paleta hardcodeada que ya usa templates/base.html.
+{% endcomment %}
+{% block title %}{% block head_title %}{% endblock %} · DataDict AI{% endblock %}
+{% block main_class %}max-w-md mx-auto px-6 py-16{% endblock %}
+{% block extra_head %}
+<style>
+    main h1 {
+        font-family: "Space Grotesk", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #E8F6F8;
+        margin-bottom: 1rem;
+    }
+    main > p {
+        color: rgba(232, 246, 248, 0.7);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+    }
+    main a {
+        color: #1FD8E8;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    main a:hover { color: #0EA5B7; }
+    main form {
+        background: rgba(15, 37, 48, 0.4);
+        border: 1px solid #0F2530;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    main form p { margin-bottom: 1rem; }
+    main form p:last-child { margin-bottom: 0; }
+    main label {
+        display: block;
+        font-size: 0.8rem;
+        color: rgba(232, 246, 248, 0.6);
+        margin-bottom: 0.35rem;
+    }
+    main input[type="checkbox"] {
+        width: auto;
+        display: inline-block;
+        margin-right: 0.4rem;
+        vertical-align: middle;
+    }
+    main input:not([type="checkbox"]):not([type="hidden"]),
+    main select,
+    main textarea {
+        width: 100%;
+        background: #08141C;
+        border: 1px solid #0F2530;
+        border-radius: 0.375rem;
+        padding: 0.55rem 0.75rem;
+        color: #E8F6F8;
+        font-size: 0.9rem;
+    }
+    main input:focus-visible,
+    main select:focus-visible,
+    main textarea:focus-visible,
+    main button:focus-visible,
+    main a:focus-visible {
+        outline: 2px solid #1FD8E8;
+        outline-offset: 2px;
+    }
+    main form button[type="submit"] {
+        margin-top: 0.5rem;
+        background: #1FD8E8;
+        color: #08141C;
+        font-family: "Space Grotesk", sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        border-radius: 0.375rem;
+        padding: 0.6rem 1.25rem;
+        cursor: pointer;
+    }
+    main form button[type="submit"]:hover { background: #0EA5B7; }
+    main .errorlist {
+        list-style: none;
+        margin: 0 0 0.75rem;
+        padding: 0;
+        color: #F5566B;
+        font-size: 0.8rem;
+    }
+</style>
+{% endblock %}
+{% block content %}{% endblock %}

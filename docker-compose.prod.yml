@@ -74,9 +74,12 @@ services:
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
-      # El puerto 80 de la VM ya lo usa otra app (nginx). DataDict AI queda
-      # en el 8080 hasta que tenga su propio dominio y podamos separar por
-      # nombre en vez de por puerto.
+      # 443 es obligatorio: ahi Caddy sirve HTTPS real y resuelve el desafio
+      # TLS-ALPN de Let's Encrypt (el puerto 80 de la VM ya lo usa otra app,
+      # asi que no podemos usar el desafio HTTP normal). 8080 se deja mapeado
+      # al 80 interno solo para que quien visite por HTTP reciba el redirect
+      # automatico de Caddy hacia HTTPS.
+      - "443:443"
       - "8080:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro

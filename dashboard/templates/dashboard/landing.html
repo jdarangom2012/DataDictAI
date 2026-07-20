@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% block title %}DataDict AI — Documentación de bases de datos con IA{% endblock %}
+{% block main_class %}{% endblock %}
+{% block content %}
+
+<!-- Hero -->
+<section class="max-w-6xl mx-auto px-6 pt-12 pb-20 md:pt-20 md:pb-28 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+    <div>
+        <span class="inline-block text-xs font-mono tracking-widest uppercase text-accent border border-accent/30 rounded-full px-3 py-1 mb-6">
+            NautilusTech &middot; Documentación de bases de datos con IA
+        </span>
+        <h1 class="font-heading text-4xl md:text-5xl font-semibold leading-tight text-ink" style="text-wrap: balance;">
+            Documenta tu base de datos Postgres antes del café de la mañana.
+        </h1>
+        <p class="mt-5 text-lg text-ink/70 max-w-xl">
+            Conecta tu base en modo solo lectura y en minutos tienes diccionario de datos, diagrama
+            entidad-relación y un chat que responde preguntas sobre tu esquema — sin instalar un CLI,
+            sin aprender un lenguaje declarativo nuevo.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center gap-4">
+            <a href="{% url 'account_signup' %}"
+               class="bg-accent text-bg font-semibold px-6 py-3 rounded-md hover:bg-accent-dark transition">
+                Empezar gratis
+            </a>
+            <a href="#como-funciona" class="text-sm text-ink/70 hover:text-accent transition">
+                Ver cómo funciona &rarr;
+            </a>
+        </div>
+        <p class="mt-6 text-xs text-ink/50 font-mono">
+            Solo lectura, siempre. Nunca escribimos en tu base de datos.
+        </p>
+    </div>
+
+    <!-- Ilustracion: mock del diagrama ER -->
+    <div class="relative rounded-lg border border-bg-secondary bg-bg-secondary/40 h-72 md:h-80 overflow-hidden">
+        <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="90" y1="70" x2="200" y2="140" stroke="#0EA5B7" stroke-width="1.5" />
+            <line x1="310" y1="70" x2="200" y2="140" stroke="#0EA5B7" stroke-width="1.5" />
+            <line x1="200" y1="140" x2="140" y2="230" stroke="#0EA5B7" stroke-width="1.5" />
+            <line x1="200" y1="140" x2="280" y2="230" stroke="#0EA5B7" stroke-width="1.5" />
+        </svg>
+        <div class="absolute font-mono text-xs" style="left: 40px; top: 55px;">
+            <div class="bg-bg border border-accent/50 rounded px-3 py-1.5 text-ink/80">customers</div>
+        </div>
+        <div class="absolute font-mono text-xs" style="left: 260px; top: 55px;">
+            <div class="bg-bg border border-accent/50 rounded px-3 py-1.5 text-ink/80">products</div>
+        </div>
+        <div class="absolute font-mono text-xs" style="left: 165px; top: 125px;">
+            <div class="bg-bg border border-accent rounded px-3 py-1.5 text-accent">orders</div>
+        </div>
+        <div class="absolute font-mono text-xs" style="left: 95px; top: 215px;">
+            <div class="bg-bg border border-accent/50 rounded px-3 py-1.5 text-ink/80">order_items</div>
+        </div>
+        <div class="absolute font-mono text-xs" style="left: 250px; top: 215px;">
+            <div class="bg-bg border border-accent/50 rounded px-3 py-1.5 text-ink/80">payments</div>
+        </div>
+        <div class="absolute bottom-3 right-4 text-[10px] font-mono text-ink/30">ilustración — no es una captura real</div>
+    </div>
+</section>
+
+<!-- El problema -->
+<section class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h2 class="font-heading text-2xl font-semibold text-ink mb-2">
+            La documentación de tu base de datos ya se desactualizó
+        </h2>
+        <p class="text-ink/70 max-w-2xl mb-10">
+            En cuanto alguien hace un <code class="font-mono text-accent bg-bg-secondary/60 px-1.5 py-0.5 rounded text-sm">ALTER TABLE</code>
+            sin avisar, las opciones de hoy dejan de servir:
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+                <h3 class="font-heading font-semibold text-ink mb-2">A mano en Notion</h3>
+                <p class="text-sm text-ink/60">Alguien lo documenta una vez y se desactualiza en la primera semana.</p>
+            </div>
+            <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+                <h3 class="font-heading font-semibold text-ink mb-2">Herramientas CLI</h3>
+                <p class="text-sm text-ink/60">Potentes para migraciones, pero exigen instalar un binario y aprender un lenguaje declarativo — no sirven para que un PM o un dev nuevo entiendan una tabla en 30 segundos.</p>
+            </div>
+            <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6">
+                <h3 class="font-heading font-semibold text-ink mb-2">En la cabeza de alguien</h3>
+                <p class="text-sm text-ink/60">La documentación vive en quien diseñó la base, y se va el día que esa persona se va.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Como funciona -->
+<section id="como-funciona" class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h2 class="font-heading text-2xl font-semibold text-ink mb-10">Cómo funciona</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div>
+                <span class="font-mono text-accent text-sm">01</span>
+                <h3 class="font-heading font-semibold text-ink mt-2 mb-1">Conecta tu base</h3>
+                <p class="text-sm text-ink/60">Pega tu connection string de Postgres. La cifrarnos al guardarla y solo la usamos en modo lectura.</p>
+            </div>
+            <div>
+                <span class="font-mono text-accent text-sm">02</span>
+                <h3 class="font-heading font-semibold text-ink mt-2 mb-1">Generamos el diccionario</h3>
+                <p class="text-sm text-ink/60">Diagrama entidad-relación interactivo, tablas, columnas, tipos y llaves foráneas, con explicación de IA por tabla.</p>
+            </div>
+            <div>
+                <span class="font-mono text-accent text-sm">03</span>
+                <h3 class="font-heading font-semibold text-ink mt-2 mb-1">Pregunta en lenguaje natural</h3>
+                <p class="text-sm text-ink/60">"¿qué tabla guarda el estado de una orden cancelada?" — en vez de leer 40 tablas a mano.</p>
+            </div>
+            <div>
+                <span class="font-mono text-accent text-sm">04</span>
+                <h3 class="font-heading font-semibold text-ink mt-2 mb-1">Exporta o comparte</h3>
+                <p class="text-sm text-ink/60">Descarga el diccionario en Markdown, y recibe una alerta cuando el esquema cambie de verdad.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Diferenciador -->
+<section class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h2 class="font-heading text-2xl font-semibold text-ink mb-6">¿Y por qué no usar Atlas?</h2>
+        <p class="text-ink/70 max-w-2xl mb-6">
+            Atlas (atlasgo.io) resuelve inspección de esquema y migraciones muy bien, gratis y open source —
+            no competimos ahí. Nuestro hueco es distinto:
+        </p>
+        <ul class="space-y-3 max-w-2xl">
+            <li class="flex gap-3 text-sm text-ink/70">
+                <span class="text-success mt-0.5">&#10003;</span>
+                Explicación en lenguaje natural con IA, no solo el DDL crudo.
+            </li>
+            <li class="flex gap-3 text-sm text-ink/70">
+                <span class="text-success mt-0.5">&#10003;</span>
+                Producto hospedado, no herramienta de terminal — nadie en tu equipo tiene que instalar nada.
+            </li>
+            <li class="flex gap-3 text-sm text-ink/70">
+                <span class="text-success mt-0.5">&#10003;</span>
+                Te explicamos qué hace cada tabla y por qué existe esa relación, no solo su estructura.
+            </li>
+        </ul>
+    </div>
+</section>
+
+<!-- Precios -->
+<section class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-16">
+        <h2 class="font-heading text-2xl font-semibold text-ink mb-2">Planes</h2>
+        <p class="text-ink/70 mb-10">Todas las funciones completas en cada plan — solo cambia cuántas conexiones puedes tener activas.</p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6 flex flex-col">
+                <h3 class="font-heading text-lg font-semibold text-ink">Starter</h3>
+                <p class="text-2xl font-heading mt-2 text-ink">$19<span class="text-sm text-ink/50">/mes</span></p>
+                <p class="text-sm text-ink/70 mt-3 flex-1">1 conexión de base de datos. Diccionario, diagrama ER, chat con IA, export a Markdown y detección de cambios.</p>
+                <a href="{% url 'account_signup' %}" class="mt-4 text-center rounded-md px-4 py-2 text-sm font-medium bg-accent text-bg hover:bg-accent-dark transition">
+                    Empezar con Starter
+                </a>
+            </div>
+            <div class="rounded-lg border border-accent/50 bg-bg-secondary/40 p-6 flex flex-col">
+                <h3 class="font-heading text-lg font-semibold text-ink">Pro</h3>
+                <p class="text-2xl font-heading mt-2 text-ink">$39<span class="text-sm text-ink/50">/mes</span></p>
+                <p class="text-sm text-ink/70 mt-3 flex-1">Hasta 5 conexiones de base de datos. Diccionario, diagrama ER, chat con IA, export a Markdown y detección de cambios.</p>
+                <a href="{% url 'account_signup' %}" class="mt-4 text-center rounded-md px-4 py-2 text-sm font-medium bg-accent text-bg hover:bg-accent-dark transition">
+                    Empezar con Pro
+                </a>
+            </div>
+            <div class="rounded-lg border border-bg-secondary bg-bg-secondary/40 p-6 flex flex-col">
+                <h3 class="font-heading text-lg font-semibold text-ink">Team</h3>
+                <p class="text-2xl font-heading mt-2 text-ink">$79<span class="text-sm text-ink/50">/mes</span></p>
+                <p class="text-sm text-ink/70 mt-3 flex-1">Hasta 15 conexiones de base de datos. Diccionario, diagrama ER, chat con IA, export a Markdown y detección de cambios.</p>
+                <a href="{% url 'account_signup' %}" class="mt-4 text-center rounded-md px-4 py-2 text-sm font-medium bg-accent text-bg hover:bg-accent-dark transition">
+                    Empezar con Team
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA final -->
+<section class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-16 text-center">
+        <h2 class="font-heading text-2xl md:text-3xl font-semibold text-ink" style="text-wrap: balance;">
+            Conecta tu base de datos y ve el diagrama en menos de 5 minutos.
+        </h2>
+        <a href="{% url 'account_signup' %}"
+           class="inline-block mt-6 bg-accent text-bg font-semibold px-6 py-3 rounded-md hover:bg-accent-dark transition">
+            Crear cuenta gratis
+        </a>
+    </div>
+</section>
+
+<footer class="border-t border-bg-secondary">
+    <div class="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-ink/40">
+        <span>&copy; {% now "Y" %} NautilusTech S.A.S. &mdash; DataDict AI</span>
+        <div class="flex items-center gap-4">
+            <a href="{% url 'account_login' %}" class="hover:text-accent transition">Iniciar sesión</a>
+            <a href="{% url 'account_signup' %}" class="hover:text-accent transition">Registrarse</a>
+        </div>
+    </div>
+</footer>
+{% endblock %}

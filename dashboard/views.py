@@ -33,8 +33,10 @@ def _user_connections(user):
     return DatabaseConnection.objects.filter(user=user).order_by("-created_at")
 
 
-@login_required
 def home(request):
+    if not request.user.is_authenticated:
+        return render(request, "dashboard/landing.html")
+
     return render(
         request,
         "dashboard/home.html",

@@ -56,6 +56,15 @@
                     </button>
                 </form>
             </div>
+            {% else %}
+            <div class="flex items-center gap-5">
+                <a href="{% url 'account_login' %}" class="text-sm text-ink/70 hover:text-accent transition">
+                    Iniciar sesion
+                </a>
+                <a href="{% url 'account_signup' %}" class="text-sm font-medium bg-accent text-bg px-4 py-2 rounded-md hover:bg-accent-dark transition">
+                    Registrarse
+                </a>
+            </div>
             {% endif %}
         </div>
     </header>

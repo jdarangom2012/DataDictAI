@@ -34,10 +34,10 @@ def client(user):
 
 
 @pytest.mark.django_db
-def test_anonymous_user_is_redirected_to_login():
+def test_anonymous_user_sees_landing_page():
     response = Client().get("/")
-    assert response.status_code == 302
-    assert "/accounts/login/" in response.url
+    assert response.status_code == 200
+    assert "Empezar gratis" in response.content.decode()
 
 
 @pytest.mark.django_db
